@@ -53,8 +53,6 @@ vector<TH1D*> GetRatioMethodHistFromData(TH1D *data_1,TH1D *data_2, TH1D *data_3
     double uPlus = data_3 -> GetBinContent(ibin_up) ;
     double uMinus = data_4 -> GetBinContent(ibin_do) ;
 
-    cout<<"uMinus "<<uMinus<<endl;
-
     double Ddist = (uPlus + uMinus) - (v1 + v2); // + or -? 
     double Sdist = uPlus + uMinus + v1 + v2;
     double RatioValue = Ddist/Sdist;
@@ -100,92 +98,83 @@ int main() {
   
   //  cout << "Please enter the number of histograms you want to use for the Ratio Method: " << endl;
   // cin >>  nHist;
-  cout<<"Line103"<<endl;
+
 TFile *file1 = TFile::Open("plots_60hr_15922.root", "READ");  
- cout<<"Line105"<<endl;
+
   if (file1 == 0) {
     
     // if we cannot open the file, print an error message and return immediatly
-    printf("Oh no! Cannot open data file");
+    printf("Oh no! Cannot open file");
     return 1;
    
   }
- cout<<"Line113"<<endl;
+
   TFile* file2 = new TFile("RatioMethodDataSam.root", "RECREATE"); 
- cout<<"Line115"<<endl;
+
 //Loop over data, 24 histograms - shouldnt be hardcoded but heck it
 
 // Just test with the first four
 //for (int i = 1; i < 5; i++){ 
-   
- //string num;
-    // ostringstream conv;
-    //  conv << i;
-    cout<<"Line124"<<endl;
+  int i = 1;
+   string num;
+  ostringstream conv;
+   conv << i;
+
   //Need to equally fill four seperate histograms from the data file. 
 
-  string name1 = "data_1";//+ conv.str();
-  string name2 = "data_2";//+ conv.str();
+   string name1 = "data_1";//+ conv.str();
+   string name2 = "data_2";//+ conv.str();
   string name3 = "data_3";//+ conv.str();
   string name4 = "data_4";//+ conv.str();
-  cout<<name1<<endl;
-
-  cout<<"Line130"<<endl;
   string outname1 = "RatDist_";// + conv.str();
   string outname2 = "DDist_";// + conv.str();
   string outname3 = "SDist_";// + conv.str();
   string outtitle1 = "R(t) for  ";// + conv.str();
   string outtitle2 = "D(t) for Pseudo Experiement ";// + conv.str();
   string outtitle3 = "S(t) for Pseudo Experiement ";// + conv.str();
-  cout<<"Line137"<<endl;
+
 
     TH1D *h1 = (TH1D*)file1 -> Get(name1.c_str());   // Gets the  wiggle plot
     TH1D *h2 = (TH1D*)file1 -> Get(name2.c_str());   
     TH1D *h3 = (TH1D*)file1 -> Get(name3.c_str());   
     TH1D *h4 = (TH1D*)file1 -> Get(name4.c_str());   
-      cout<<"Line142"<<endl;
-      // cout<<"iteration"<<i<<endl;
 
-
-       Double_t binWidth = h1 -> GetBinWidth(1);    
-   Double_t binWidth2 = h2 -> GetBinWidth(1);
-// Get bin width of pseudo wiggle plot
-          cout<<"Line144"<<endl;
-       Double_t binNum =  h1->GetNbinsX();
-       cout<<binNum<<endl;
-       // h1.GetXaxis()->GetNbins()   // Get bin number of pseudo wiggle plot
-        cout<<"Line146"<<endl;
+    Double_t binWidth = h1 -> GetBinWidth(1);         
+    Double_t binNum =  h1->GetNbinsX();
     Double_t totalTime = binWidth * binNum;       // Find total time
-    cout<<"time "<<totalTime<endl;
-      cout<<"Line148"<<endl;
+    
+    // print some parameters to check everything  
+    /* cout<<"total time "<< totalTime <<endl;
+    cout<<"bin width for h1 "<< binWidth <<endl;
+    cout<<"bin width for h2 "<< h2 -> GetBinWidth(1) <<endl;
+    cout<<"bin width for h3 "<< h3 -> GetBinWidth(1) <<endl;
+    cout<<"bin number for h1 "<< binNum << endl;
+    cout<<"bin number for h2 "<< h2 -> GetNbinsX() << endl;
+    cout<<"bin number for h3 "<< h3 -> GetNbinsX() << endl;
+    */
     vector<TH1D*> tmp = GetRatioMethodHistFromData(h1, h2, h3, h4, totalTime , binWidth , binNum , 0);
-    cout<<binWidth<<endl;
- cout<<binWidth2<<endl;
- cout<<"Line150"<<endl;
- // cout<binNum<<endl;
- //Seg fault, invalid pointer
- 
-    tmp.at(0) -> SetNameTitle(outname1.c_str(), outtitle1.c_str());
-    cout<<"Line160"<<endl;    
+
+    tmp.at(0) -> SetNameTitle(outname1.c_str(), outtitle1.c_str());    
     tmp.at(0) -> GetXaxis() -> SetTitle("Time (ns)");
-  cout<<"Line162"<<endl; 
-   tmp.at(0) -> GetYaxis() -> SetTitle("R(t)");
-     cout<<"Line164"<<endl; 
-      tmp.at(1) -> SetNameTitle(outname2.c_str(), outtitle2.c_str());
-     tmp.at(1) -> GetXaxis() -> SetTitle("Time (ns)");
-     tmp.at(1) -> GetYaxis() -> SetTitle("D(t)");
-         cout<<"Line168"<<endl; 
-	  tmp.at(2) -> SetNameTitle(outname3.c_str(), outtitle3.c_str());
+    tmp.at(0) -> GetYaxis() -> SetTitle("R(t)");
+    
+    tmp.at(1) -> SetNameTitle(outname2.c_str(), outtitle2.c_str());
+    tmp.at(1) -> GetXaxis() -> SetTitle("Time (ns)");
+    tmp.at(1) -> GetYaxis() -> SetTitle("D(t)");
+    
+    tmp.at(2) -> SetNameTitle(outname3.c_str(), outtitle3.c_str());
     tmp.at(2) -> GetXaxis() -> SetTitle("Time (ns)");
     tmp.at(2) -> GetYaxis() -> SetTitle("S(t)");
-     cout<<"Line172"<<endl; 
+     
     tmp.at(0) -> Write();
-   cout<<"Line174"<<endl; 
-   //  delete tmp;
-     tmp.at(1) -> Write();
-     tmp.at(2) -> Write();
-    
-  
+    tmp.at(1) -> Write();
+    tmp.at(2) -> Write();
 
+    cout << "End" << endl;
+   
+    // cout<<"iteration number "<<i<<endl;
+
+    // }
 
 }
+
